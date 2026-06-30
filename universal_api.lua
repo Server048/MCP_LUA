@@ -524,7 +524,92 @@ function M.MakeRequest(url, method, headers, body, timeout)
 end
 
 -- ════════════════════════════════════════════════════════════
--- §10  UTILITY
+-- §10  TILE ACTIONS (Hit / Place)
+-- ════════════════════════════════════════════════════════════
+---Low-level tile action packet builder.
+---@param x      number  target tile x
+---@param y      number  target tile y
+---@param value  number  18 = punch/break (fist), otherwise item ID to place
+local function _tileAction(x, y, value)
+    local me = M.GetLocal()
+    M.SendPacketRaw(false, {
+        type  = 3,                         -- PACKET_TILE_CHANGE_REQUEST
+        value = value or 18,
+        px    = x,
+        py    = y,
+        x     = me and me.pos.x or 0,      -- local player's pixel pos
+        y     = me and me.pos.y or 0,
+    })
+end
+
+---Punch/break the tile at (x, y) with the fist (value 18).
+---@param x number
+---@param y number
+function M.Hit(x, y)
+    _tileAction(x, y, 18)
+end
+M.Punch = M.Hit  -- alias
+
+---Place an item at tile (x, y).
+---@param x      number
+---@param y      number
+---@param itemID number
+function M.Place(x, y, itemID)
+    _tileAction(x, y, itemID)
+end
+
+-- ════════════════════════════════════════════════════════════
+-- §10b  MOVEMENT
+-- ════════════════════════════════════════════════════════════
+--[[
+  M.Move(dx, dy) is RELATIVE to the bot's current tile.
+  Example: bot is at tile x=30. M.Move(1, 0)  → walks to x=31 (forward)
+                                  M.Move(-1, 0) → walks to x=29 (backward)
+  Built on top of M.GetLocal() + M.FindPath().
+--]]
+
+---Move relative to current tile position.
+---@param dx number  tiles to move on X (+right / -left)
+---@param dy number  tiles to move on Y (+down / -up)
+function M.Move(dx, dy)
+    local me = M.GetLocal()
+    if not me then return end
+    local tx = math.floor(me.pos.x / 32) + (dx or 0)
+    local ty = math.floor(me.pos.y / 32) + (dy or 0)
+    M.FindPath(tx, ty)
+end
+
+---Move to an absolute tile position (alias of M.FindPath).
+---@param x number
+---@param y number
+function M.MoveTile(x, y)
+    M.FindPath(x, y)
+end
+
+---Returns true if the bot is currently standing on tile (x, y).
+---@param x number
+---@param y number
+---@return boolean
+function M.IsTile(x, y)
+    local me = M.GetLocal()
+    if not me then return false end
+    local tx = math.floor(me.pos.x / 32)
+    local ty = math.floor(me.pos.y / 32)
+    return tx == x and ty == y
+end
+
+-- ════════════════════════════════════════════════════════════
+-- §10c  CHAT
+-- ════════════════════════════════════════════════════════════
+
+---Send a chat message in-game.
+---@param text string
+function M.Chat(text)
+    M.SendPacket(2, "action|input\n|text|" .. tostring(text))
+end
+
+-- ════════════════════════════════════════════════════════════
+-- §10d  UTILITY
 -- ════════════════════════════════════════════════════════════
 
 ---Move the player to tile (x, y) via pathfinding.
@@ -607,7 +692,7 @@ end
 ---Return module version string.
 ---@return string
 function M.Version()
-    return "1.0.0"
+    return "1.1.1"
 end
 
 -- ════════════════════════════════════════════════════════════
