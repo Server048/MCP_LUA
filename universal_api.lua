@@ -706,6 +706,6 @@ end
 -- ════════════════════════════════════════════════════════════
 -- INIT LOG
 -- ════════════════════════════════════════════════════════════
-M.Log(string.format("[UAPI v%s] Loaded — executor: %s", M.Version(), EX))
-
+M.Log(string.format("`9[UAPI v%s]`^ Loaded — Executor: `5%s", M.Version(), EX))
+M.Log("`2[ DEV ] `^Original Dev Team ToolKIT")
 return M
