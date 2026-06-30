@@ -20,7 +20,7 @@ Simpan `universal_api.lua` di GitHub kamu (raw URL), lalu load dari dalam script
 
 ```lua
 -- Ganti URL dengan raw URL GitHub kamu
-local M = load(MakeRequest("https://raw.githubusercontent.com/username/repo/main/universal_api.lua").content)()
+local M = load(MakeRequest("https://raw.githubusercontent.com/Server048/MCP_LUA/refs/heads/main/universal_api.lua").content)()
 
 -- Siap pakai!
 print(M.GetLocal().name)
