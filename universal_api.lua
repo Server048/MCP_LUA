@@ -558,6 +558,14 @@ function M.Place(x, y, itemID)
     _tileAction(x, y, itemID)
 end
 
+---Consume an item at tile (x, y).
+---@param x      number
+---@param y      number
+---@param itemID number
+function M.Use(x, y, itemID)
+    _tileAction(x, y, itemID)
+end
+
 -- ════════════════════════════════════════════════════════════
 -- §10b  MOVEMENT
 -- ════════════════════════════════════════════════════════════
