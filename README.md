@@ -20,7 +20,7 @@ Simpan `universal_api.lua` di GitHub kamu (raw URL), lalu load dari dalam script
 
 ```lua
 -- Ganti URL dengan raw URL GitHub kamu
-local M = load(MakeRequest("https://raw.githubusercontent.com/username/repo/main/universal_api.lua").content)()
+local M = "https://raw.githubusercontent.com/Server048/MCP_LUA/refs/heads/main/universal_api.lua").content)()
 
 -- Siap pakai!
 print(M.GetLocal().name)
@@ -349,7 +349,7 @@ if dirt then print(dirt.id) end     -- 2
 
 ### 1. Script Dasar — Lihat Info Diri Sendiri
 ```lua
-local M = load(MakeRequest("https://raw.githubusercontent.com/username/repo/main/universal_api.lua").content)()
+local M = load(MakeRequest("https://raw.githubusercontent.com/Server048/MCP_LUA/refs/heads/main/universal_api.lua").content)()
 
 local me = M.GetLocal()
 M.Log("=== INFO ===")
@@ -364,7 +364,7 @@ M.Log("Gems     : " .. M.GetGems())
 
 ### 2. Scan World Lock di Map
 ```lua
-local M = load(MakeRequest("https://raw.githubusercontent.com/username/repo/main/universal_api.lua").content)()
+local M = load(MakeRequest("https://raw.githubusercontent.com/Server048/MCP_LUA/refs/heads/main/universal_api.lua").content)()
 
 M.Log("Scanning WL...")
 local count = 0
@@ -381,7 +381,7 @@ M.Log("Total WL ditemukan: " .. count)
 
 ### 3. Auto Collect Dropped Item
 ```lua
-local M = load(MakeRequest("https://raw.githubusercontent.com/username/repo/main/universal_api.lua").content)()
+local M = load(MakeRequest("https://raw.githubusercontent.com/Server048/MCP_LUA/refs/heads/main/universal_api.lua").content)()
 
 local TARGET_ID = 242  -- World Lock
 
@@ -410,7 +410,7 @@ end)
 
 ### 4. ImGui UI + Hook Variant
 ```lua
-local M = load(MakeRequest("https://raw.githubusercontent.com/username/repo/main/universal_api.lua").content)()
+local M = load(MakeRequest("https://raw.githubusercontent.com/Server048/MCP_LUA/refs/heads/main/universal_api.lua").content)()
 
 local blockedDialogs = 0
 
@@ -445,7 +445,7 @@ end)
 
 ### 5. Cek Player di Sekitar (radius tile)
 ```lua
-local M = load(MakeRequest("https://raw.githubusercontent.com/username/repo/main/universal_api.lua").content)()
+local M = load(MakeRequest("https://raw.githubusercontent.com/Server048/MCP_LUA/refs/heads/main/universal_api.lua").content)()
 
 local RADIUS = 5  -- tile
 
@@ -473,7 +473,7 @@ end)
 
 ### 6. Auto Farm Tile (Hit + Place + Move)
 ```lua
-local M = load(MakeRequest("https://raw.githubusercontent.com/username/repo/main/universal_api.lua").content)()
+local M = load(MakeRequest("https://raw.githubusercontent.com/Server048/MCP_LUA/refs/heads/main/universal_api.lua").content)()
 
 local SEED_ID = 8  -- contoh: dirt seed
 
