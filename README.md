@@ -20,7 +20,7 @@ Simpan `universal_api.lua` di GitHub kamu (raw URL), lalu load dari dalam script
 
 ```lua
 -- Ganti URL dengan raw URL GitHub kamu
-local M = load(MakeRequest("https://raw.githubusercontent.com/Server048/MCP_LUA/refs/heads/main/universal_api.lua").content)()
+local M = load(MakeRequest("https://raw.githubusercontent.com/username/repo/main/universal_api.lua").content)()
 
 -- Siap pakai!
 print(M.GetLocal().name)
@@ -281,6 +281,58 @@ M.JoinWorld("START")
 
 ---
 
+### 🔨 Tile Actions — Hit / Place
+
+Shortcut untuk aksi punch & place tile, dibangun di atas `M.SendPacketRaw` (packet `TileChangeRequest`, type 3) — gak perlu nulis raw packet manual lagi.
+
+```lua
+-- Punch tile di (10, 20)
+M.Hit(10, 20)
+M.Punch(10, 20)  -- alias, sama saja
+
+-- Place item id 8 (dirt) di (10, 20)
+M.Place(10, 20, 8)
+```
+
+---
+
+### 🚶 Movement — Move / MoveTile / IsTile
+
+`M.Move(dx, dy)` itu **relatif** terhadap posisi tile bot saat ini (dibangun dari `M.GetLocal()` + `M.FindPath()`).
+
+```lua
+-- Bot di tile x=30. Maju 1 tile (x jadi 31)
+M.Move(1, 0)
+
+-- Mundur 1 tile (x jadi 29)
+M.Move(-1, 0)
+
+-- Naik 1 tile ke atas (y berkurang 1)
+M.Move(0, -1)
+```
+
+```lua
+-- Pindah ke posisi tile ABSOLUT (sama seperti M.FindPath)
+M.MoveTile(50, 20)
+```
+
+```lua
+-- Cek apakah bot sedang berdiri di tile tertentu
+if M.IsTile(50, 20) then
+    M.Log("Sudah sampai!")
+end
+```
+
+---
+
+### 💬 Chat
+
+```lua
+M.Chat("Halo dari UAPI!")
+```
+
+---
+
 ### 🎒 Item Database
 
 ```lua
@@ -419,6 +471,31 @@ end)
 
 ---
 
+### 6. Auto Farm Tile (Hit + Place + Move)
+```lua
+local M = load(MakeRequest("https://raw.githubusercontent.com/username/repo/main/universal_api.lua").content)()
+
+local SEED_ID = 8  -- contoh: dirt seed
+
+M.RunThread(function()
+    M.Chat("Auto farm dimulai!")
+    for i = 1, 5 do
+        local tile = M.GetTile(50 + i, 20)
+        if tile and tile.fg ~= 0 then
+            M.Hit(50 + i, 20)        -- panen / hancurkan tile
+            M.Sleep(300)
+        end
+        M.Place(50 + i, 20, SEED_ID) -- tanam ulang
+        M.Sleep(300)
+        M.Move(1, 0)                 -- maju 1 tile
+        M.Sleep(500)
+    end
+    M.Chat("Auto farm selesai!")
+end)
+```
+
+---
+
 ## 🗺️ Peta Perbedaan API
 
 | Fungsi Universal     | Bothax            | GentaHax           | Growlauncher          |
@@ -445,11 +522,18 @@ end)
 | `M.CheckPath`        | `CheckPath`       | `checkPath`        | `FindPath(x,y,true)`  |
 | `M.JoinWorld`        | `RequestJoinWorld`| packet             | packet                |
 | `M.GetItemByID`      | `GetItemByIDSafe` | `getItemByID`      | `ItemInfoManager`     |
+| `M.Hit` / `M.Punch`  | dibangun dari `M.SendPacketRaw` (type 3, item=0) | sama | sama |
+| `M.Place`            | dibangun dari `M.SendPacketRaw` (type 3, item=id) | sama | sama |
+| `M.Move`             | dibangun dari `M.GetLocal` + `M.FindPath` (relatif) | sama | sama |
+| `M.MoveTile`         | alias `M.FindPath` (absolut) | sama | sama |
+| `M.IsTile`           | dibangun dari `M.GetLocal` | sama | sama |
+| `M.Chat`             | dibangun dari `M.SendPacket(2, ...)` | sama | sama |
 
 ---
 
 ## ⚠️ Catatan Penting
 
+- **`M.Hit` / `M.Place` / `M.Move` / `M.Chat`** → ini bukan API dari executor manapun, melainkan shorthand yang kita bangun sendiri di atas `SendPacketRaw`/`SendPacket`/`FindPath` yang sudah ada. Penamaan terinspirasi dari konvensi umum (`hit`, `place`, `move`, `chat`) supaya gak perlu nulis raw packet panjang tiap kali mau aksi simpel.
 - **`me._raw`** → selalu tersedia di tiap struct. Gunakan untuk akses field eksklusif executor yang tidak ada di API universal.
 - **`me.gems`** → hanya tersedia di **GentaHax** (karena sudah ada di NetAvatar). Di Bothax & Growlauncher gunakan `M.GetGems()`.
 - **`OnTouch`** → tidak tersedia di Growlauncher. `M.AddHook("OnTouch", ...)` akan log warning dan tidak mendaftar hook.
