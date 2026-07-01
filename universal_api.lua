@@ -526,6 +526,20 @@ end
 -- ════════════════════════════════════════════════════════════
 -- §10  TILE ACTIONS (Hit / Place)
 -- ════════════════════════════════════════════════════════════
+--[[
+  Implemented via M.SendPacketRaw using the real TileChangeRequest
+  packet fields confirmed from executor source (type 3):
+    value = item ID being placed, OR 18 = break/punch (fist)
+    px,py = target tile coordinates
+    x,y   = local player's CURRENT pixel position (not the target tile)
+
+  ⚠️ Confirmed against real Bothax source. GentaHax/Growlauncher's
+  sendPacketRaw functions may expect slightly different field names
+  for the same packet (e.g. itemId/tilex/tiley). If M.Hit/M.Place
+  don't work on those executors, check their raw packet docs and
+  adjust the field names in _tileAction below.
+--]]
+
 ---Low-level tile action packet builder.
 ---@param x      number  target tile x
 ---@param y      number  target tile y
@@ -557,14 +571,6 @@ M.Punch = M.Hit  -- alias
 ---@param y      number
 ---@param itemID number
 function M.Place(x, y, itemID)
-    _tileAction(x, y, itemID)
-end
-
----Consume an item at tile (x, y).
----@param x      number
----@param y      number
----@param itemID number
-function M.Use(x, y, itemID)
     _tileAction(x, y, itemID)
 end
 
