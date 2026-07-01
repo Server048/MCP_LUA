@@ -4,13 +4,32 @@ Satu API, tiga executor. Tulis script sekali — jalan di **Bothax**, **GentaHax
 
 ---
 
+## 📁 Struktur Repo
+
+```
+MCP_LUA/
+├── universal_api.lua      ← Modul utama (ini yang di-load)
+├── README.md              ← Dokumentasi untuk manusia (ini)
+├── API_REFERENCE.md       ← Referensi padat untuk LLM/AI code generation
+├── SKILL.md               ← Skill file untuk MCP agent
+└── examples/
+    ├── info.lua           ← Script dasar: info player & world
+    ├── pnb.lua            ← Auto farm Plant N Break
+    ├── scan_object.lua    ← Scanner dropped item di world
+    └── magplant.lua       ← Farm otomatis pakai Magnetic Pole
+```
+
+---
+
 ## ✨ Fitur
 
 - ✅ Auto-detect executor aktif saat script di-load
 - ✅ Normalisasi struktur data (player, tile, object, NPC)
 - ✅ Unified hook system dengan nama event yang seragam
 - ✅ Fallback aman — fungsi yang tidak tersedia di executor tertentu tidak crash
-- ✅ Semua fungsi terdokumentasi dengan tipe parameter
+- ✅ Shorthand actions: `Hit`, `Place`, `Move`, `Chat` built-in
+- ✅ Contoh script siap pakai di folder `examples/`
+- ✅ Docs terpisah untuk MCP/AI agent (`API_REFERENCE.md`, `SKILL.md`)
 
 ---
 
@@ -20,7 +39,7 @@ Simpan `universal_api.lua` di GitHub kamu (raw URL), lalu load dari dalam script
 
 ```lua
 -- Ganti URL dengan raw URL GitHub kamu
-local M = "https://raw.githubusercontent.com/Server048/MCP_LUA/refs/heads/main/universal_api.lua").content)()
+local M = load(MakeRequest("https://raw.githubusercontent.com/username/repo/main/universal_api.lua").content)()
 
 -- Siap pakai!
 print(M.GetLocal().name)
@@ -285,6 +304,11 @@ M.JoinWorld("START")
 
 Shortcut untuk aksi punch & place tile, dibangun di atas `M.SendPacketRaw` (packet `TileChangeRequest`, type 3) — gak perlu nulis raw packet manual lagi.
 
+Field packet yang dipakai (dikonfirmasi dari source Bothax asli):
+- `value` → `18` = punch/break (fist), atau item ID kalau mau place
+- `px, py` → koordinat tile target
+- `x, y` → posisi pixel pemain **saat ini** (bukan posisi target)
+
 ```lua
 -- Punch tile di (10, 20)
 M.Hit(10, 20)
@@ -293,6 +317,8 @@ M.Punch(10, 20)  -- alias, sama saja
 -- Place item id 8 (dirt) di (10, 20)
 M.Place(10, 20, 8)
 ```
+
+> ⚠️ Field di atas sudah dikonfirmasi cocok untuk **Bothax**. Kalau di GentaHax/Growlauncher `M.Hit`/`M.Place` ternyata gak ngefek, kemungkinan `sendPacketRaw` mereka pakai nama field beda (misal `itemId`/`tilex`/`tiley`) — share contoh kode raw packet dari salah satu dokumentasi mereka biar disesuaikan.
 
 ---
 
@@ -349,7 +375,7 @@ if dirt then print(dirt.id) end     -- 2
 
 ### 1. Script Dasar — Lihat Info Diri Sendiri
 ```lua
-local M = load(MakeRequest("https://raw.githubusercontent.com/Server048/MCP_LUA/refs/heads/main/universal_api.lua").content)()
+local M = load(MakeRequest("https://raw.githubusercontent.com/username/repo/main/universal_api.lua").content)()
 
 local me = M.GetLocal()
 M.Log("=== INFO ===")
@@ -364,7 +390,7 @@ M.Log("Gems     : " .. M.GetGems())
 
 ### 2. Scan World Lock di Map
 ```lua
-local M = load(MakeRequest("https://raw.githubusercontent.com/Server048/MCP_LUA/refs/heads/main/universal_api.lua").content)()
+local M = load(MakeRequest("https://raw.githubusercontent.com/username/repo/main/universal_api.lua").content)()
 
 M.Log("Scanning WL...")
 local count = 0
@@ -381,7 +407,7 @@ M.Log("Total WL ditemukan: " .. count)
 
 ### 3. Auto Collect Dropped Item
 ```lua
-local M = load(MakeRequest("https://raw.githubusercontent.com/Server048/MCP_LUA/refs/heads/main/universal_api.lua").content)()
+local M = load(MakeRequest("https://raw.githubusercontent.com/username/repo/main/universal_api.lua").content)()
 
 local TARGET_ID = 242  -- World Lock
 
@@ -410,7 +436,7 @@ end)
 
 ### 4. ImGui UI + Hook Variant
 ```lua
-local M = load(MakeRequest("https://raw.githubusercontent.com/Server048/MCP_LUA/refs/heads/main/universal_api.lua").content)()
+local M = load(MakeRequest("https://raw.githubusercontent.com/username/repo/main/universal_api.lua").content)()
 
 local blockedDialogs = 0
 
@@ -445,7 +471,7 @@ end)
 
 ### 5. Cek Player di Sekitar (radius tile)
 ```lua
-local M = load(MakeRequest("https://raw.githubusercontent.com/Server048/MCP_LUA/refs/heads/main/universal_api.lua").content)()
+local M = load(MakeRequest("https://raw.githubusercontent.com/username/repo/main/universal_api.lua").content)()
 
 local RADIUS = 5  -- tile
 
@@ -473,7 +499,7 @@ end)
 
 ### 6. Auto Farm Tile (Hit + Place + Move)
 ```lua
-local M = load(MakeRequest("https://raw.githubusercontent.com/Server048/MCP_LUA/refs/heads/main/universal_api.lua").content)()
+local M = load(MakeRequest("https://raw.githubusercontent.com/username/repo/main/universal_api.lua").content)()
 
 local SEED_ID = 8  -- contoh: dirt seed
 
@@ -522,8 +548,8 @@ end)
 | `M.CheckPath`        | `CheckPath`       | `checkPath`        | `FindPath(x,y,true)`  |
 | `M.JoinWorld`        | `RequestJoinWorld`| packet             | packet                |
 | `M.GetItemByID`      | `GetItemByIDSafe` | `getItemByID`      | `ItemInfoManager`     |
-| `M.Hit` / `M.Punch`  | dibangun dari `M.SendPacketRaw` (type 3, item=0) | sama | sama |
-| `M.Place`            | dibangun dari `M.SendPacketRaw` (type 3, item=id) | sama | sama |
+| `M.Hit` / `M.Punch`  | `SendPacketRaw{type=3, value=18, px, py, x, y}` | sama (cek field) | sama (cek field) |
+| `M.Place`            | `SendPacketRaw{type=3, value=itemID, px, py, x, y}` | sama (cek field) | sama (cek field) |
 | `M.Move`             | dibangun dari `M.GetLocal` + `M.FindPath` (relatif) | sama | sama |
 | `M.MoveTile`         | alias `M.FindPath` (absolut) | sama | sama |
 | `M.IsTile`           | dibangun dari `M.GetLocal` | sama | sama |
