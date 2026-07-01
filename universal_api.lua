@@ -532,11 +532,13 @@ end
 ---@param value  number  18 = punch/break (fist), otherwise item ID to place
 local function _tileAction(x, y, value)
     local me = M.GetLocal()
+    local px = math.floor(me.pos.x / 32) + (x or 0)
+    local py = math.floor(me.pos.y / 32) + (y or 0)
     M.SendPacketRaw(false, {
         type  = 3,                         -- PACKET_TILE_CHANGE_REQUEST
         value = value or 18,
-        px    = x,
-        py    = y,
+        px    = px,
+        py    = py,
         x     = me and me.pos.x or 0,      -- local player's pixel pos
         y     = me and me.pos.y or 0,
     })
